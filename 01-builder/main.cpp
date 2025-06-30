@@ -19,10 +19,8 @@ quello.
  */
 using namespace std;
 
-struct HtmlBuilder;
 
-class HtmlElement {
-    friend class HtmlBuilder;
+struct HtmlElement {
     string name, text;
     vector<HtmlElement> elements;
     const size_t indent_size = 2;
@@ -31,7 +29,7 @@ class HtmlElement {
 
     HtmlElement(const string& name,const string& text)
     : name(name), text(text) {}
-public:
+
     string str(int indent=0) const {
         ostringstream oss;
         string i(indent_size*indent, ' ');
@@ -47,43 +45,22 @@ public:
         oss << i << "</" << name << ">" << endl;
         return oss.str();
     }
-
-    static HtmlBuilder create(string root_name);
-
-
 };
 
-
-class HtmlBuilder {
+struct HtmlBuilder {
     HtmlElement root;
-public:
+
     HtmlBuilder(string root_name) {
         root.name = root_name;
     }
 
-    HtmlBuilder& add_child(string child_name, string child_text) {
+    void add_child(string child_name, string child_text) {
         HtmlElement e{child_name,child_text};
         root.elements.emplace_back(e);
-        return *this;
-    }
-    HtmlBuilder* add_child_2(string child_name, string child_text) {
-        HtmlElement e{child_name,child_text};
-        root.elements.emplace_back(e);
-        return this;
     }
 
     string str() const { return root.str(); }
-
-    operator HtmlElement() const {return root;}
-
-    HtmlElement build() {return root;}
 };
-
-inline HtmlBuilder HtmlElement::create(string root_name)
-{
-    return {root_name};
-}
-
 
 int main() {
     cout << "/////////////////////////////////////////////" << endl;
@@ -108,15 +85,9 @@ int main() {
     cout << "/////////////////////////////////////////////" << endl;
 
     HtmlBuilder builder{"ul"};
-    builder.add_child("li", "hello")
-            .add_child("li", "world");
+    builder.add_child("li", "hello");
+    builder.add_child("li", "world");
 
     cout << builder.str() << endl;
-
-    HtmlElement builder2 = HtmlElement::create("ul").add_child("","");
-
-    HtmlElement e = HtmlElement::create("ul")
-    .add_child("","")
-    .build();
     return 0;
 }
