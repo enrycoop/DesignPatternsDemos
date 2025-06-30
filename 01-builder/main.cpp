@@ -50,7 +50,10 @@ public:
 
     static HtmlBuilder create(string root_name);
 
-
+    // static unique_ptr<HtmlBuilder> build(string root_name)
+    // {
+    //     return make_unique<HtmlBuilder>(root_name);
+    // }
 };
 
 
@@ -76,7 +79,7 @@ public:
 
     operator HtmlElement() const {return root;}
 
-    HtmlElement build() {return root;}
+
 };
 
 inline HtmlBuilder HtmlElement::create(string root_name)
