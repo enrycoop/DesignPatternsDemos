@@ -14,6 +14,9 @@ struct Address {
           suite(suite) {
     }
 
+    Address(const Address &other)
+        : street {other.street}, city {other.city}, suite {other.suite} {}
+
     friend std::ostream & operator<<(std::ostream &os, const Address &obj) {
         return os
                << "street: " << obj.street
@@ -32,10 +35,19 @@ struct Contact {
           address(address) {
     }
 
+    // un modo per definire la deep copy e' con un costruttore di copia
+    Contact(const Contact &other)
+        : name {other.name}
+        , address {new Address {*other.address}}
+    {}
+
     friend std::ostream & operator<<(std::ostream &os, const Contact &obj) {
         return os
                << "name: " << obj.name
                << " addres: " << *obj.address;
+    }
+    ~Contact() {
+        delete address;
     }
 };
 
@@ -43,12 +55,12 @@ struct Contact {
 int main() {
     Contact john{"John Wick",new Address{"Every", "where", 123}};
     //Contact ballerina{"Ballerina",Address{"Every", "where", 13}};
-    Contact ballerina = john;
+    Contact ballerina{john}; // shallow copy
     ballerina.name = "Ballerina";
     ballerina.address->suite = 13;
 
     cout << john << endl << ballerina << endl;
 
-    delete john.address;
+
     return 0;
 }
