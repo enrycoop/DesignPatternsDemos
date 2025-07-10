@@ -51,15 +51,29 @@ struct Contact {
     }
 };
 
+struct EmployeeFactory
+{
+    static unique_ptr<Contact> new_main_office_employee
+        (const string &name, const int suite)
+    {
+        static Contact p{"", new Address{"123 East Dr", "London", 0}};
+        return new_employee(name, suite, p);
+    }
+private:
+    static unique_ptr<Contact> new_employee(const string &name, const int suite, const Contact &prototype)
+    {
+        auto result = make_unique<Contact>(prototype);
+        result->name = name;
+        result->address->suite = suite;
+        return result;
+    }
+};
 
 int main() {
-    Contact john{"John Wick",new Address{"Every", "where", 123}};
-    //Contact ballerina{"Ballerina",Address{"Every", "where", 13}};
-    Contact ballerina{john}; // shallow copy
-    ballerina.name = "Ballerina";
-    ballerina.address->suite = 13;
+    auto john = EmployeeFactory::new_main_office_employee("John", 123);
 
-    cout << john << endl << ballerina << endl;
+
+    cout << *john << endl;
 
 
     return 0;
