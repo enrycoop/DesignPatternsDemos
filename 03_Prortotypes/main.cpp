@@ -1,12 +1,17 @@
-#define _USE_MATH_DEFINES
 #include <iostream>
-#include <cmath>
 #include <ostream>
+#include <sstream>
+#include <memory>
 using namespace std;
+
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+using namespace boost;
 
 struct Address {
     string street, city;
     int suite;
+    Address() = default;
 
     Address(const string &street, const string &city, int suite)
         : street(street),
@@ -23,13 +28,27 @@ struct Address {
                << " city: " << obj.city
                << " suite: " << obj.suite;
     }
+
+private:
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive& ar, const unsigned int version)
+    {
+        ar & street;
+        ar & city;
+        ar & suite;
+
+    }
 };
 
 
 struct Contact {
+
     string name;
     Address* address;
 
+    Contact() : address(nullptr) {};
     Contact(const string &name, Address *address)
         : name(name),
           address(address) {
@@ -41,14 +60,24 @@ struct Contact {
         , address {new Address {*other.address}}
     {}
 
+    ~Contact() {delete address;}
+
     friend std::ostream & operator<<(std::ostream &os, const Contact &obj) {
         return os
                << "name: " << obj.name
-               << " addres: " << *obj.address;
+               << " address: " << *obj.address;
     }
-    ~Contact() {
-        delete address;
+private:
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive& ar, const unsigned version)
+    {
+        ar & name;
+        ar & address;
+
     }
+
 };
 
 struct EmployeeFactory
@@ -70,11 +99,24 @@ private:
 };
 
 int main() {
+    auto clone =[](const Contact& c)
+    {
+        ostringstream oss;
+        archive::text_oarchive oa(oss);
+        oa << c;
+        string s = oss.str();
+        cout << s << endl;
+
+        istringstream iss(s);
+        archive::text_iarchive ia(iss);
+        Contact result;
+        ia >> result;
+        return result;
+    };
+
     auto john = EmployeeFactory::new_main_office_employee("John", 123);
-
-
-    cout << *john << endl;
-
-
+    auto jane = clone(*john);
+    jane.name = "Jane";
+    cout << *john << endl << jane << endl;
     return 0;
 }
