@@ -6,18 +6,27 @@ using namespace std;
 
 #include <boost/lexical_cast.hpp>
 
+#define PATH "/home/enrico/CLionProjects/DesignPatternsDemos/04_Singleton/capitals.txt"
+
+
 class SingletonDatabase
 {
     SingletonDatabase()
     {
         cout << "Initialzing database\n";
-        ifstream ifs("capitals.txt");
-        string s, s2;
-        while(std::getline(ifs, s))
-        {
-            getline(ifs, s2);
-            int pop = lexical_cast<int>(s2);
-            capitals[s] = pop;
+        ifstream ifs(PATH);
+        if (ifs.is_open()) {
+            string s, s2;
+            while(std::getline(ifs, s))
+            {
+                getline(ifs, s2);
+                int pop = boost::lexical_cast<int>(s2);
+                capitals[s] = pop;
+            }
+            if (capitals.empty())
+                cout << "No capitals found\n";
+        }else {
+            cout << "Unable to open database file\n";
         }
     }
     map<string, int> capitals;
