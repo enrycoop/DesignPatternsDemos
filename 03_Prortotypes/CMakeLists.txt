@@ -3,17 +3,13 @@ project(03_Prototypes)
 
 set(CMAKE_CXX_STANDARD 20)
 
-# Configurazione Boost
-set(BOOST_ROOT C:\\local\\boost_1_88_0)
-
-# Trova Boost
+# Trova Boost tramite vcpkg
 find_package(Boost REQUIRED COMPONENTS serialization)
 
-# Crea l'eseguibile PRIMA di linkare le librerie
+# Crea l'eseguibile
 add_executable(03_Prototypes main.cpp)
 
-# Ora puoi linkare le librerie e includere le directory
-if(Boost_FOUND)
-    target_link_libraries(03_Prototypes ${Boost_LIBRARIES})
-    target_include_directories(03_Prototypes PRIVATE ${Boost_INCLUDE_DIRS})
-endif()
+# Link con Boost usando i target moderni di vcpkg
+target_link_libraries(03_Prototypes PRIVATE 
+    Boost::serialization
+)
