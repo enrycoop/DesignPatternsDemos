@@ -2,9 +2,13 @@
 #include <iostream>
 #include <map>
 #include <string>
+#include <vector>
+#include <gtest/gtest.h>
+
 using namespace std;
 
 #include <boost/lexical_cast.hpp>
+
 
 #define PATH "/home/enrico/CLionProjects/DesignPatternsDemos/04_Singleton/capitals.txt"
 
@@ -47,11 +51,27 @@ public:
     }
 };
 
-int main()
+struct SingletonRecordFinder {
+    int total_population(vector<string> names) {
+        int result{0};
+        for (auto& name : names) {
+            result += SingletonDatabase::get().get_population(name);
+        }
+        return result;
+    }
+};
+
+TEST(RecordFinderTests, SingletonTotalPopulationTest) {
+    SingletonRecordFinder finder;
+    vector<string> names{"Tokyo","Seul"};
+    int tp = finder.total_population(names);
+    ASSERT_EQ(tp, 13960000+9776000);
+}
+
+int main(int ac, char* av[])
 {
-    string city = "Tokyo";
-    cout << city << " has population "
-        << SingletonDatabase::get().get_population(city) << endl;
+    testing::InitGoogleTest(&ac, av);
+    return RUN_ALL_TESTS();
 
     return 0;
 }
