@@ -50,7 +50,8 @@ public:
 int main()
 {
     string city = "Tokyo";
-    cout << city << " has population " << SingletonDatabase::get().get_population(city) << endl;
+    cout << city << " has population "
+        << SingletonDatabase::get().get_population(city) << endl;
 
     return 0;
 }

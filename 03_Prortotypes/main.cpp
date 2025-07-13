@@ -102,8 +102,8 @@ int main() {
     auto clone =[](const Contact& c)
     {
         ostringstream oss;
-        archive::text_oarchive oa(oss);
-        oa << c;
+        archive::text_oarchive text_output_archive(oss);
+        text_output_archive << c;
         string s = oss.str();
         cout << s << endl;
 
