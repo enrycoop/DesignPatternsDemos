@@ -116,8 +116,6 @@ TEST(RecordFinderTests, DependantTotalPopulationTest) {
     EXPECT_EQ(3, finder.total_population(std::vector<std::string>{"alpha","beta"}));
 }
 
-
-
 int main(int ac, char* av[])
 {
     testing::InitGoogleTest(&ac, av);
