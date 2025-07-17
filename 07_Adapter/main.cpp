@@ -1,4 +1,6 @@
 #include <iostream>
+#include <memory>
+
 #include "Geometry.h"
 
 using namespace std;
