@@ -5,8 +5,12 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Trova i pacchetti necessari
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(GLFW3 REQUIRED glfw3)
+if(UNIX)
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(GLFW3 REQUIRED glfw3)
+else ()
+    find_package(glfw3 CONFIG REQUIRED)
+endif ()
 find_package(OpenGL REQUIRED)
 
 # File sorgenti ImGui
@@ -30,12 +34,10 @@ add_executable(${PROJECT_NAME}
         main.cpp
         ${IMGUI_SOURCES}
 )
-
+target_link_libraries(ImGuiHelloWorld )
 # Link alle librerie
-target_link_libraries(${PROJECT_NAME}
-        ${GLFW3_LIBRARIES}
+target_link_libraries(${PROJECT_NAME} PRIVATE glfw
         OpenGL::GL
-        dl
 )
 
 # Compilatore flags per debug
