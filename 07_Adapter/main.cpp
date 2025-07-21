@@ -1,60 +1,125 @@
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
+#include <GLFW/glfw3.h>
 #include <iostream>
-#include <memory>
-#include "Geometry.h"
 
-using namespace std;
-
-#include <FL/Fl.H>
-#include <FL/Fl_Window.H>
-#include <FL/Fl_Box.H>
-#include <FL/fl_draw.H>
-
-#include "graphics_gui.h"
-
-//
-// class DrawingWidget : public Fl_Box {
-//     vector<shared_ptr<VectorObject>> objects;
-//
-// public:
-//     DrawingWidget(int x, int y, int w, int h) : Fl_Box(x, y, w, h) {}
-//
-//     void addObject(shared_ptr<VectorObject> obj) {
-//         objects.push_back(obj);
-//     }
-//
-//     void draw() override {
-//         Fl_Box::draw();
-//
-//         fl_color(FL_BLACK);
-//
-//         // Disegna tutti gli oggetti vettoriali
-//         for (const auto& obj : objects) {
-//             for (auto it = obj->begin(); it != obj->end(); ++it) {
-//                 const Line& line = *it;
-//                 fl_line(line.start.x, line.start.y, line.end.x, line.end.y);
-//             }
-//         }
-//     }
-// };
-
-
-int main(int argc, char **argv) {
-    // const auto window = make_unique<Fl_Window>(1080, 720, "Hello, FLTK");
-    // const auto drawingArea = make_unique<DrawingWidget>(0, 0, 1080, 720);
-    //
-    // // Aggiungi gli oggetti geometrici al widget di disegno
-    // drawingArea->addObject(std::make_shared<VectorRectangle>(10, 10, 100, 100));
-    // drawingArea->addObject(std::make_shared<VectorRectangle>(30, 30, 60, 60));
-    //
-    // window->end();
-    // window->show();
-
-    make_window()->show();
-    return Fl::run();
-
+// Callback per gli errori di GLFW
+static void glfw_error_callback(int error, const char* description) {
+    std::cerr << "GLFW Error " << error << ": " << description << std::endl;
 }
 
+int main() {
+    // Inizializza GLFW
+    glfwSetErrorCallback(glfw_error_callback);
+    if (!glfwInit()) {
+        std::cerr << "Errore nell'inizializzazione di GLFW!" << std::endl;
+        return -1;
+    }
 
+    // Configura GLFW per OpenGL 3.3 Core Profile
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
+    // Crea la finestra
+    GLFWwindow* window = glfwCreateWindow(1280, 720, "ImGui Hello World", nullptr, nullptr);
+    if (window == nullptr) {
+        std::cerr << "Errore nella creazione della finestra!" << std::endl;
+        glfwTerminate();
+        return -1;
+    }
 
+    glfwMakeContextCurrent(window);
+    glfwSwapInterval(1); // Abilita V-Sync
 
+    // Setup ImGui
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+
+    // Imposta lo stile
+    ImGui::StyleColorsDark();
+
+    // Inizializza i backend di ImGui
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 330 core");
+
+    // Variabili per la demo
+    bool show_demo_window = true;
+    bool show_another_window = true;
+    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+    float counter_value = 0.0f;
+    char text_buffer[256] = "Ciao dal buffer di testo!";
+
+    // Main loop
+    while (!glfwWindowShouldClose(window)) {
+        glfwPollEvents();
+
+        // Inizia il frame ImGui
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        // 1. Finestra principale "Hello World"
+        {
+            ImGui::Begin("Hello World ImGui!");
+
+            ImGui::Text("Benvenuto in ImGui!");
+
+            if (ImGui::Button("Incrementa contatore"))
+                counter_value++;
+
+            ImGui::SameLine();
+            ImGui::Text("Valore = %.1f", counter_value);
+
+            ImGui::InputText("Testo", text_buffer, IM_ARRAYSIZE(text_buffer));
+
+            ImGui::Checkbox("Mostra finestra demo", &show_demo_window);
+            ImGui::Checkbox("Mostra altra finestra", &show_another_window);
+
+            ImGui::SliderFloat("Valore float", &counter_value, 0.0f, 100.0f);
+            ImGui::ColorEdit3("Colore di sfondo", (float*)&clear_color);
+
+            ImGui::Text("Framerate medio: %.3f ms/frame (%.1f FPS)",
+                       1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+
+            ImGui::End();
+        }
+
+        // 3. Altra finestra personalizzata
+        if (show_another_window) {
+            ImGui::Begin("Un'altra finestra", &show_another_window);
+            ImGui::Text("Ciao da un'altra finestra!");
+            if (ImGui::Button("Chiudi"))
+                show_another_window = false;
+            ImGui::End();
+        }
+
+        // Rendering
+        int display_w, display_h;
+        glfwGetFramebufferSize(window, &display_w, &display_h);
+        glViewport(0, 0, display_w, display_h);
+        glClearColor(clear_color.x * clear_color.w,
+                     clear_color.y * clear_color.w,
+                     clear_color.z * clear_color.w,
+                     clear_color.w);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+        glfwSwapBuffers(window);
+    }
+
+    // Cleanup
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+
+    glfwDestroyWindow(window);
+    glfwTerminate();
+
+    return 0;
+}
