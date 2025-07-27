@@ -21,9 +21,11 @@ int main() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    float display_w{1280.0};
+    float display_h{720.0};
 
     // Crea la finestra
-    GLFWwindow* window = glfwCreateWindow(1280, 720, "ImGui Hello World", nullptr, nullptr);
+    GLFWwindow* window = glfwCreateWindow(display_w, display_h, "Graphics", nullptr, nullptr);
     if (window == nullptr) {
         std::cerr << "Errore nella creazione della finestra!" << std::endl;
         glfwTerminate();
@@ -49,7 +51,7 @@ int main() {
     // Variabili per la demo
     bool show_demo_window = true;
     bool show_another_window = true;
-    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+    ImVec4 clear_color = ImVec4(0.10f, 0.1f, 0.1f, 1.00f);
     float counter_value = 0.0f;
     char text_buffer[256] = "Ciao dal buffer di testo!";
 
@@ -64,7 +66,13 @@ int main() {
 
         // 1. Finestra principale "Hello World"
         {
-            ImGui::Begin("Hello World ImGui!");
+
+            ImGui::SetNextWindowSize(ImVec2(display_w, display_h)); // Dimensione intera
+            ImGui::SetNextWindowPos(ImVec2(0, 0)); // Posizione nell'angolo in alto a sinistra
+
+            // Usa il flag NoDecoration per rimuovere decorazioni
+            ImGui::Begin("main", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+
 
             ImGui::Text("Benvenuto in ImGui!");
 
@@ -85,15 +93,6 @@ int main() {
             ImGui::Text("Framerate medio: %.3f ms/frame (%.1f FPS)",
                        1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
-            ImGui::End();
-        }
-
-        // 3. Altra finestra personalizzata
-        if (show_another_window) {
-            ImGui::Begin("Un'altra finestra", &show_another_window);
-            ImGui::Text("Ciao da un'altra finestra!");
-            if (ImGui::Button("Chiudi"))
-                show_another_window = false;
             ImGui::End();
         }
 
