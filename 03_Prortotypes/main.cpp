@@ -38,7 +38,6 @@ private:
         ar & street;
         ar & city;
         ar & suite;
-
     }
 };
 
@@ -75,7 +74,6 @@ private:
     {
         ar & name;
         ar & address;
-
     }
 
 };
